@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call-it Market</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="scripts.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>Call-it Market</h1>
+        <button id="connect-wallet">Connect Wallet</button>
+    </header>
+    
+    <section id="my-account">
+        <h2>My Account</h2>
+        <h4> send native PLS deposits to: 0x123...8fde9 (*NOT* $WPLS)</h4>
+        <p>Wallet: <span id="wallet-address">0x123...9aF</span></p>
+        <p>USD Balance: <span id="earned-amount">$100.00</span></p>
+        <p>$CALL Token Balance: <span id="call-votes">5</span></p>
+        <p>$CALL (Votes) Earned: <span id="call-votes">5</span></p>
+        <p>Maker Score: <span id="maker-score">95%</span></p>
+    </section>
+    
+    <section id="create-market">
+        <h2>Create a Market</h2>
+        <h4>Input initial LP amount to contribute ...<br>($CALL token is rewarded to market makers)</h4>
+        <input type="text" id="usd-lp-amount" placeholder="USD Amount (max = USD balance above)">
+        <h4>Enter description and/or rules of the market ...</h4>
+        <textarea id="description-rules" placeholder="ex: who will win president in novemeber 2024? One answer wins. No more bets or trading 1 week before election, etc."></textarea>
+        <h4>Select Trade End Date ...<br>(all bets are final after this date)</h4>
+        <input style="width: 20%" class="gms-input form-control input-box" id="input_query_date" type="date" name="input_query_date" placeholder="select date">
+        <h4>Input Possible Outcomes ... <br>(an ERC20 token w/ symbol CTKx will be created for each outcome)</h4>
+        <input type="text" id="option1" placeholder="ex: Trump">
+        <input type="text" id="option2" placeholder="ex: Biden">
+        <input type="text" id="option3" placeholder="ex: Kennedy">
+        <button id="submit-market">Submit</button>
+    </section>
+    
+    <section id="buy-minted-ctk">
+        <h2>Buy Minted Call Ticket (CTKx)</h2>
+        <h4>You may buy newly minted CTKx.
+            DEX quotes are considered and then the price is calculated based around maintaining a $1.00 collective value among all possible outcomes to a market.
+            This allows for arbitrage opportunity between this dAPP and DEXs to help the prices maintain within that $1.00 collective value</h4>
+        <input type="text" id="buy-ctx-addr" placeholder="CTKx Address">
+        <input type="text" id="buy-ctx-amount" placeholder="CTKx Amount">
+        <button id="quote-buy-ctx">Get Quote</button>
+        Quote: ...
+        <br><br>
+        <button id="buy-ctx">Buy</button>
+    </section>
+    
+    <section id="list-markets">
+        <h2>List Markets</h2>
+        <h4>CLOSE | VOTE | CLAIM x2 | BUY/SELL (DEX)</h4>
+        <div class="market-grid">
+            <div class="market" id="market1">
+                <h3>M1</h3>
+                <p>Maker: <span class="maker">0xA1B2</span></p>
+                <p>OPT 1: <span class="opt1">10%</span> <button class="buy">Buy</button> <button class="sell">Sell</button></p>
+                <p>OPT 2: <span class="opt2">30%</span> <button class="buy">Buy</button> <button class="sell">Sell</button></p>
+                <p>OPT 3: <span class="opt3">60%</span> <button class="buy">Buy</button> <button class="sell">Sell</button></p>
+            </div>
+            <div class="market" id="market2">
+                <h3>M2</h3>
+                <p>Maker: <span class="maker">0xC3D4</span></p>
+                <p>OPT 1: <span class="opt1">20%</span> <button class="buy">Buy</button> <button class="sell">Sell</button></p>
+                <p>OPT 2: <span class="opt2">50%</span> <button class="buy">Buy</button> <button class="sell">Sell</button></p>
+                <p>OPT 3: <span class="opt3">30%</span> <button class="buy">Buy</button> <button class="sell">Sell</button></p>
+            </div>
+            <div class="market" id="market3">
+                <h3>M3</h3>
+                <p>Maker: <span class="maker">0xE5F6</span></p>
+                <p>OPT 1: <span class="opt1">40%</span> <button class="buy">Buy</button> <button class="sell">Sell</button></p>
+                <p>OPT 2: <span class="opt2">35%</span> <button class="buy">Buy</button> <button class="sell">Sell</button></p>
+                <p>OPT 3: <span class="opt3">25%</span> <button class="buy">Buy</button> <button class="sell">Sell</button></p>
+            </div>
+        </div>
+    </section>
+
+    <section id="admin-mint-sell">
+        <h2>Admin Mint & Sell CTKx</h2>
+        If the DEX price of any CTKx token is >= $1.00, you may buy that token from the contract at $1.00
+        <input type="text" id="ctx-addr" placeholder="CTKx Address">
+        <button id="ctx-sell">GO</button>
+    </section>
+</body>
+</html>
