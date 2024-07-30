@@ -9,7 +9,7 @@ var FILE_NAME_RESULTS_EXPORT = "gtires_results_export"
 var API_VER = "/gmsserv/api/v1"
 var LOCAL_SERVER_URI    = "http://localhost:5001"       +API_VER
 var REMOTE_SERVER_URI   = "http://3.16.26.237:50040"   +API_VER
-var USE_LOCAL_SERVER = true
+var USE_LOCAL_SERVER = false
 if (USE_LOCAL_SERVER == true) {
     // key_vals={'event_code', 'event_level', 'event_descr'}
     CALLIT_ADD_MARK = LOCAL_SERVER_URI+"/callit/market/add_v1";
