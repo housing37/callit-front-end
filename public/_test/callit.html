@@ -16,7 +16,7 @@
     
     <section id="my-account">
         <h2>My Account</h2>
-        <h4> send native PLS deposits to: 0x123...8fde9 (*NOT* $WPLS)</h4>
+        <h4>send native PLS deposits to: 0x123...8fde9 (*NOT* $WPLS)</h4>
         <p>Wallet: <span id="wallet-address">0x123...9aF</span></p>
         <p>USD Balance: <span id="earned-amount">$100.00</span></p>
         <p>$CALL Token Balance: <span id="call-votes">5</span></p>
@@ -24,27 +24,35 @@
         <p>Maker Score: <span id="maker-score">95%</span></p>
     </section>
     
-    <section id="create-market">
+    <section id="create-market" style="background-color:green;">
         <h2>Create a Market</h2>
-        <input type="text" id="market-category" placeholder="ex: sports, current events, dooms day scenarios, etc.">
-        <h4>Input initial LP amount to contribute ...<br>($CALL token is rewarded to market makers)</h4>
+        <h4>(0) Input initial LP amount to contribute ...<br>($CALL token is rewarded to market makers)</h4>
         <input type="text" id="usd-lp-amount" placeholder="USD Amount (max = USD balance above)">
-        <h4>Enter description and/or rules of the market ...</h4>
-        <textarea id="description-rules" placeholder="ex: who will win president in novemeber 2024? One answer wins. No more bets or trading 1 week before election, etc."></textarea>
-        <h4>Select Trade End Date ...<br>(all bets are final after this date)</h4>
-        <input style="width: 20%" class="gms-input form-control input-box" id="input_query_date" type="date" name="input_query_date" placeholder="select date">
-        <h4>Input Possible Outcomes ... <br>(an ERC20 token w/ symbol CTKx will be created for each outcome)</h4>
-        <input type="text" id="option1" placeholder="ex: Trump">
-        <input type="text" id="option2" placeholder="ex: Biden">
-        <input type="text" id="option3" placeholder="ex: Kennedy">
+        <h4>(1) Enter market category ...</h4>
+        <input type="text" id="market-category" placeholder="ex: sports, current events, dooms day scenarios, etc.">
+        <h4>(2) Enter market image url ...</h4>
+        <input type="text" id="market-img-url" placeholder="ex: https://img.domain.com/img_name.jpg">
+        <h4>(3) Enter description and/or rules of the market ...</h4>
+        <textarea id="description-rules" placeholder="ex: who will win president in November 2024? One answer wins. No more bets or trading 1 week before election, etc."></textarea>
+        <h4>(4) Select Trade End Date ...<br> NOTE: all bets are final after this date<br>(ie. all liquidity will be auto-removed from the DEX and people will no longer be able to change/trade their bets. And that liquidity will then be reserved as the 'prize-pool' for winners to claim)</h4>
+        <input style="width: 20%" class="gms-input form-control input-box" id="input_dt_trade_end" type="date" name="input_dt_trade_end" placeholder="select date">
+        <h4>(5) Input Possible Outcomes w/ "label" and "description" ... <br> NOTE: an ERC20 token w/ symbol CTKx will be created for each outcome.<br>The 'x' in 'CTKx' will be replaced by a random ID which represents an outcome result when creating that market</h4>
+        <div id="outcomes">
+            <div class="outcome-pair">
+                <input type="text" class="outcome-label" placeholder="Label: Giants win over 10" style="width: 20%;">
+                <input type="text" class="outcome-desc" placeholder="Description: Giants win by more than 10 points" style="width: 75%;">
+            </div>
+        </div>
+        <button id="add-outcome">Add Outcome</button>
         <button id="submit-market">Submit</button>
     </section>
     
     <section id="buy-minted-ctk">
         <h2>Buy Minted Call Ticket (CTKx)</h2>
-        <h4>You may buy newly minted CTKx.
-            DEX quotes are considered and then the price is calculated based around maintaining a $1.00 collective value among all possible outcomes to a market.
-            This allows for arbitrage opportunity between this dAPP and DEXs to help the prices maintain within that $1.00 collective value</h4>
+        <h4>You may buy newly minted CTKx (1 CTKx represents a single option result within an open markte).<br>
+            &nbsp;NOTE: after we launch, the 'x' in 'CTKx' will be replaced with a random number ID to allow each option result token to have a unique symbol on the open market DEXs<br><br>
+            When generating a price for buying a minted CTKx token here... DEX quotes are considered and then the price is calculated based around maintaining a $1.00 collective value among all possible outcomes to a market.
+            This allows for arbitrage opportunity between this dAPP and DEXs to help the prices be maintained within that $1.00 collective value (ie. $1.00 price = 100% voting odds for that result)</h4>
         <input type="text" id="buy-ctx-addr" placeholder="CTKx Address">
         <input type="text" id="buy-ctx-amount" placeholder="CTKx Amount">
         <button id="quote-buy-ctx">Get Quote</button>
@@ -55,7 +63,7 @@
     
     <section id="list-markets">
         <h2>List Markets</h2>
-        <h4>CLOSE | VOTE | CLAIM x2 | BUY/SELL (DEX)</h4>
+        <h4>NOTE: within the list of open markets below, you will have the following options:<br> "CLOSE" | "VOTE" | "CLAIM x2" | "BUY/SELL (on DEX)"</h4>
         <div class="market-grid">
             <div class="market" id="market1">
                 <h3>M1</h3>
