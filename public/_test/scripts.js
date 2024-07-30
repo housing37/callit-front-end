@@ -1,7 +1,7 @@
 /* ===================================================== */
 /* NETWORK REQUEST SUPPORT */
 /* ===================================================== */
-ADMIN_KEYS = [37]
+ADMIN_KEYS = [37,22]
 
 // netowwork request endpoints
 var FILE_NAME_RESULTS_EXPORT = "gtires_results_export"
