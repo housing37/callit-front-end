@@ -1,13 +1,15 @@
 /* ===================================================== */
 /* NETWORK REQUEST SUPPORT */
 /* ===================================================== */
+ADMIN_KEYS = [37]
+
 // netowwork request endpoints
 var FILE_NAME_RESULTS_EXPORT = "gtires_results_export"
 //var API_VER = "/gasptires/api/v1"
 var API_VER = "/gmsserv/api/v1"
 var LOCAL_SERVER_URI    = "http://localhost:5001"       +API_VER
 var REMOTE_SERVER_URI   = "http://3.16.26.237:50040"   +API_VER
-var USE_LOCAL_SERVER = false
+var USE_LOCAL_SERVER = true
 if (USE_LOCAL_SERVER == true) {
     // key_vals={'event_code', 'event_level', 'event_descr'}
     CALLIT_ADD_MARK = LOCAL_SERVER_URI+"/callit/market/add_v1";
@@ -30,6 +32,12 @@ $(document).ready(function() {
     });
 
     $('#submit-market').click(function() {
+
+        if (!check_admind_id($('#admin-id').val())) {
+            alert('invalid admin id');
+            return
+        }
+
         const usdLpAmount = $('#usd-lp-amount').val();
         const description = $('#description-rules').val();
         const img_url = $('#market-img-url').val();
@@ -40,18 +48,29 @@ $(document).ready(function() {
             alert("please select a date to search or click 'next' to search today")
             return
         }
-        dt_trade_end = parse_date_picker_selection(dt_trade_end)
+        dt_trade_end_parse = parse_date_picker_selection(dt_trade_end)
 
         let outcomes = [];
+        let lst_opt_label = []
+        let lst_opt_descr = []
         $('.outcome-pair').each(function() {
             const label = $(this).find('.outcome-label').val();
             const desc = $(this).find('.outcome-desc').val();
+            lst_opt_label.push(label)
+            lst_opt_descr.push(desc)
             outcomes.push({label: label, desc: desc});
         });
-        alert('Market submitted with outcomes: ' + JSON.stringify(outcomes));
+        // alert('Market submitted with outcomes: ' + JSON.stringify(outcomes));
 
         reqURL = CALLIT_ADD_MARK
-        dictReqKeyVals = {"user_id": -37, "get_date":dt_updated, "cnt_evt_type":cnt_evt_type, "get_all":get_all}
+        dictReqKeyVals = {"user_id": -37,
+                            "p_dt_trade_end":dt_trade_end_parse,
+                            "p_category":category,
+                            "p_img_url":img_url,
+                            "p_description":description,
+                            "p_rules":description,
+                            "lst_opt_short":lst_opt_label,
+                            "lst_opt_long":lst_opt_descr}
         //alert(JSON.stringify(dictReqKeyVals))
                                 
         // note_070922: exe network request after sleep 1 second
@@ -59,9 +78,10 @@ $(document).ready(function() {
         //   local & remote server (from desktop) worked just fine
         //   but remote server from mobile, requires this 1 secon delay for DOM to render, i guess
         //ref: https://stackoverflow.com/a/1141340
-        $('#query_results_head').text('Query In Progress... please wait')
+        $('#submit_results_head').text('Adding Market... please wait')
         setTimeout(function(){
-            exe_server_request(reqURL, dictReqKeyVals, handle_server_response, 'POST')
+            exe_server_request(reqURL, dictReqKeyVals, cb_callit_add_mark, 'POST')
+            $('#submit_results_head').text('Market added successfully!')
         }, 1000);
     });
 
@@ -89,6 +109,13 @@ $(document).ready(function() {
     });
 });
 
+function check_admind_id(num_id) {
+    lst_valid = ADMIN_KEYS
+    if (!lst_valid.includes(Number(num_id))) {
+        return false;
+    }
+    return true;
+}
 function parse_date_picker_selection(sel_val) {
     //var dt = $('#input_query_date').val();
     var dt = sel_val;
@@ -113,29 +140,25 @@ function parse_date_picker_selection(sel_val) {
 /* ===================================================== */
 /* NETWORK REQUEST SUPPORT */
 /* ===================================================== */
-function handle_server_response(reqURL, arr_dics) {
+function cb_callit_add_mark(reqURL, arr_dics) {
     //console.log("arr_dics: "+JSON.stringify(arr_dics))
-    d_evt = arr_dics[0]
-    RESP_CNT_EVT_TYPE = d_evt['input_cnt_evt_type']
-    RESP_EVT_TYPE_CNT_TOT = d_evt['evt_type_cnt_tot']
-    RESP_EVT_TYPE_CNT = d_evt['evt_type_cnt']
-    
     $.each(arr_dics, function(x){
         d = arr_dics[x]
         if ('dt_created' in d) {
             //convert epoch time to string date & remove time part
             var epochDate = new Date(d['dt_created']*1000);
-           //var strDate = epochDate.toLocaleString(); // returns same as 'localDate'
-           var localDate = epochDate.toLocaleString("en-US", {timeZone: "America/New_York"}) //6/27/2021,
-           d['dt_created'] = localDate
+            //var strDate = epochDate.toLocaleString().split(',')[0];
+            //var strDate = epochDate.toLocaleString().split('\n')[0];
+            //var strDate = epochDate.toLocaleString().split('<br>')[0];
+            var strDate = epochDate.toLocaleString();
+            d['dt_created'] = strDate
         }
         if ('dt_updated' in d) {
             //convert epoch time to string date & remove time part
             var epochDate = new Date(d['dt_updated']*1000);
             //var strDate = epochDate.toLocaleString().split(',')[0];
-            //d['dt_updated'] = strDate
-            var localDate = epochDate.toLocaleString("en-US", {timeZone: "America/New_York"}) //6/27/2021,
-            d['dt_updated'] = localDate
+            var strDate = epochDate.toLocaleString();
+            d['dt_updated'] = strDate
         }
         if ('dt_removed' in d) {
             //convert epoch time to string date & remove time part
@@ -146,34 +169,32 @@ function handle_server_response(reqURL, arr_dics) {
             }
             d['dt_removed'] = strDate
         }
-           
-        // if request was to get avm log,
-        //  then create 't_created' to show only time for x-axis in bar graph
-        if (reqURL == URL_CREATE_MARKET) {
-             idx_start = d['dt_updated'].indexOf(',') + 2; // set start after ', '
-             d['t_created'] = d['dt_updated'].slice(idx_start, localDate.length)
-             var maxValue = Math.max.apply(Math, arr_dics.map(function (item) {
-                return item.Value;
-            }));
-             AMV_LOG_2_MAX_Y = maxValue
-        }
-
+        console.log('DONE ... i think')
+        // if ('status' in d) {
+        //    // set copy for requet progress
+        //    var str_txt = 'Added Event '+d['status']+'... '+d['dt_updated'].slice(d['dt_updated'].indexOf(' ')+1)+' ('+d['evt_set']+')'
+        //    $('#event_select_progress').text(str_txt)
+        //    $('#event_input_progress').text(str_txt)
+        // }
     });
-    // lstSearchResultsGrid = arr_dics
-    // res_len = lstSearchResultsGrid.length
-    // create_search_results_grid(res_len)
-    //alert('Search Complete; ' +res_len+ ' results')
+
+//    lstSearchResultsGrid = arr_dics
+//    res_len = lstSearchResultsGrid.length
+//    create_search_results_grid(res_len)
+    alert('Add Event Log Successful! -> '+reqURL+'\nresp params:\n '+JSON.stringify(arr_dics))
 }
 
 function exe_server_request(reqURL, dictReqKeyVals, cb_response, type) {
-    var loadinst = $('[data-remodal-id=loadingModal_post]').remodal();
+    // var loadinst = $('[data-remodal-id=loadingModal_post]').remodal();
     //loadinst.open()
     //if (enableLoadingPopups) {loadinst.open();}
+    console.log('EXE _  exe_server_request to reqURL: '+ reqURL)
 
     switch(type) {
         case 'GET':
             $.get(reqURL,function(data, status) {
-                loadinst.close()
+                // loadinst.close()
+                console.log('GET request returned w/ status: '+ status)
                 handle_server_response(data, status, reqURL, cb_response)
             });
             break;
@@ -183,7 +204,8 @@ function exe_server_request(reqURL, dictReqKeyVals, cb_response, type) {
                 // stringify required; de-stringify on server side
                 key_vals: JSON.stringify(dictReqKeyVals)
             },function(data, status) {
-                loadinst.close()
+                // loadinst.close()
+                console.log('POST request returned w/ status: '+ status)
                 handle_server_response(data, status, reqURL, cb_response)
             });
             break;
@@ -193,7 +215,9 @@ function exe_server_request(reqURL, dictReqKeyVals, cb_response, type) {
    
 function handle_server_response (data, status, reqURL, cb_response) {
     console.log("request returned");
-    if (status.toLowerCase() == "success") {
+    // status = String(status);
+    console.log('status (now) = ' + status)
+    if (status == "success") {
         var err = data['ERROR']
         var msg = data['MSG']
         console.log("FOUND err == "+err+"; msg == "+msg);
@@ -206,8 +230,9 @@ function handle_server_response (data, status, reqURL, cb_response) {
             } else {
                 data_mod_id = '[data-remodal-id=errorModal_server]'
             }
-            var inst = $(data_mod_id).remodal();
-            inst.open();
+            console.log('API request succeeded with error: '+ err)
+            // var inst = $(data_mod_id).remodal();
+            // inst.open();
         } else {
             console.log("reqURL: '"+reqURL+"' success!")
             console.log(JSON.stringify(data)) // print response
@@ -221,8 +246,10 @@ function handle_server_response (data, status, reqURL, cb_response) {
             //NOTE: not remodal to display for get success
         }
     } else {
-        var inst = $('[data-remodal-id=errorModal_network]').remodal();
-        inst.open();
+        // console.log('API request failed with status: '+ status.toLowerCase())
+        console.log('API request failed with status: '+ status.toString())
+        // var inst = $('[data-remodal-id=errorModal_network]').remodal();
+        // inst.open();
     }
 
     /* comment to disable post request confirmation */
